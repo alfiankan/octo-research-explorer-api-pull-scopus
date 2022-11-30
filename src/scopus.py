@@ -90,7 +90,7 @@ class ScopusPull:
                         )
 
                         print(dataclasses.asdict(information))
-                        #self.repository.ingest_information(information)
+                        self.repository.ingest_information(information)
 
 
             time.sleep(5 + randrange(10))
