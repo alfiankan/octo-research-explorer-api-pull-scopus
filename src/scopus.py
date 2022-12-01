@@ -53,44 +53,42 @@ class ScopusPull:
                 else:
                     api_key = api_keys[1]
 
-                keyword = self.scraper_topic_keyword.replace(" ", "+") + "+" + self.scraper_daerah_keyword.replace(" ", "+")
-                #uri = 'https://api.elsevier.com/content/search/scopus?query=title({0})&apiKey={1}'.format(keyword, api_key)
+                keyword = self.scraper_daerah_keyword.replace(" ", "+")
+                uri = 'https://api.elsevier.com/content/search/scopus?query=title({0})&apiKey={1}'.format(keyword, api_key)
 
-                uri = 'https://api.elsevier.com/content/search/scopus?query=title({0})&apiKey={1}'.format("science", api_key)
+                #uri = 'https://api.elsevier.com/content/search/scopus?query=title({0})&apiKey={1}'.format("science", api_key)
                 print("URL => ", uri)
 
                 response = requests.get(uri)
                 literature = response.json()
                 entries = literature['search-results']['entry']
-                for x in entries:
-                    title = x['dc:title']
-                    description = x['subtypeDescription']
-                    writer = x['dc:creator']
-                    year = x['prism:coverDate']
-                    ref_link = x['prism:url']
-
-
-                    if year is not None:
-                        information = InformationLake(
-                            title=title,
-                            description = description,
-                            abstract = "-",
-                            author = writer,
-                            year = year,
-                            daerah_label = params['daerah_label'],
-                            daerah_level = params['daerah_level'],
-                            daerah_code = params['daerah_code'],
-                            links = [ref_link],
-                            topik_id = params['topic_id'],
-                            source = "Scopus",
-                            stats = SccraperStats(
-                                label=self.repository.label,
-                                agent_ip=self.getIP(),
+                if literature['search-results']['opensearch:totalResults'] != '0':
+                    for x in entries:
+                        title = x['dc:title']
+                        description = x['subtypeDescription']
+                        writer = x['dc:creator']
+                        year = int(x['prism:coverDate'].split('-')[0])
+                        ref_link = x['prism:url']
+                        if year is not None:
+                            information = InformationLake(
+                                title=title,
+                                description = description,
+                                abstract = "-",
+                                author = writer,
+                                year = year,
+                                daerah_label = params['daerah_label'],
+                                daerah_level = params['daerah_level'],
+                                daerah_code = params['daerah_code'],
+                                links = [ref_link],
+                                topik_id = params['topic_id'],
+                                source = "Scopus",
+                                stats = SccraperStats(
+                                    label=self.repository.label,
+                                    agent_ip=self.getIP(),
+                                )
                             )
-                        )
-
-                        print(dataclasses.asdict(information))
-                        #self.repository.ingest_information(information)
+                            print(dataclasses.asdict(information))
+                            self.repository.ingest_information(information)
 
 
             time.sleep(5 + randrange(10))
