@@ -15,5 +15,5 @@ RUN pip install stem selenium requests faker tbselenium pyvirtualdisplay
 
 RUN apt install xvfb libdbus-glib-1-2 libgtk-3-0 -y
 
-CMD ["python3", "src/main_tor.py"]
+CMD ["python3", "src/main.py"]
 #CMD ["sleep", "infinity"]
